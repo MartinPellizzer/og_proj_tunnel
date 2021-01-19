@@ -129,17 +129,20 @@ void nextionEvalSerial() {
 
 
 /* -------------------------------------------------- */
-void updateNextion() {
+void updateNextion() 
+{
   uint8_t force_refresh = 0;
-  if (page_old != page_current) {
+  
+  if (page_old != page_current) 
+  {
     page_old = page_current;
     force_refresh = 1;
   }
 
-  if (page_current == 1) nextionUpdatePageHome(force_refresh);
-  else if (page_current == 11) nextionUpdatePageSettings1(force_refresh);
-  else if (page_current == 12) nextionUpdatePageSettings2(force_refresh);
-  else if (page_current == 13) nextionUpdatePageSettings3(force_refresh);
+  /**/ if (page_current == 1)   nextionUpdatePageHome(force_refresh);
+  else if (page_current == 11)  nextionUpdatePageSettings1(force_refresh);
+  else if (page_current == 12)  nextionUpdatePageSettings2(force_refresh);
+  else if (page_current == 13)  nextionUpdatePageSettings3(force_refresh);
 }
 
 
