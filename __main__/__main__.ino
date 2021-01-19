@@ -4,6 +4,9 @@
 #include <SD.h>
 File myFile;
 
+#include "RTClib.h"
+RTC_DS3231 rtc;
+
 uint8_t is_on_temp = 0;
 uint8_t is_on_current = 0;
 uint8_t is_on_old = 0;
@@ -89,6 +92,23 @@ uint8_t s2_settings_old = 1;
 uint8_t s3_settings_current = 1;
 uint8_t s3_settings_old = 1;
 
+bool RTC_inizialized = false;
+bool SD_inizialized = false;
+
+/* rtc */
+
+int rtc_year_current = 0;
+int rtc_year_old = 0;
+int rtc_month_current = 0;
+int rtc_month_old = 0;
+int rtc_day_current = 0;
+int rtc_day_old = 0;
+int rtc_hour_current = 0;
+int rtc_hour_old = 0;
+int rtc_minute_current = 0;
+int rtc_minute_old = 0;
+int rtc_second_current = 0;
+int rtc_second_old = 0;
 
 void setup() {
   digitalWrite(25, LOW);
@@ -99,9 +119,13 @@ void setup() {
 
   delay(1000);
   Serial.begin(9600);
+  delay(1000);
   Serial1.begin(9600);
+  delay(1000);
   Serial2.begin(9600);
+  delay(1000);
   Serial3.begin(9600);
+  delay(1000);
 
   /*
     if (EEPROM.read(0) != 123)
@@ -110,10 +134,10 @@ void setup() {
   manageEEPROM();
   delay(1000);
 
-  if (!SD.begin(4)) {
-    //Serial.println("initialization failed!");
-  }
+  if (SD.begin(4))
+    SD_inizialized = true;
   else {
+    SD_inizialized = false;
     //Serial.println("initialization done.");
     digitalWrite(26, HIGH);
     delay(100);
@@ -127,23 +151,25 @@ void setup() {
     delay(100);
     digitalWrite(26, LOW);
     delay(100);
-    
-    myFile = SD.open("oliark.txt", FILE_WRITE);
-    if (myFile) 
-    {
-      myFile.println("OLIARK");
-      myFile.close();
-    } 
-    else 
-    {
-      //Serial.println("error opening test.txt");
-    }
+  }
+
+  if (rtc.begin())
+    RTC_inizialized = true;
+  else
+    RTC_inizialized = false;
+
+  if (rtc.lostPower()) {
+    //Serial.println("RTC lost power, let's set the time!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
 
   page_current = 1;
 }
 
 void loop() {
+  RTC_Handler();
+  SD_Handler();
+  
   updateSensorsVal();
   checkSensorsAlarm();
   checkMainSensor();
