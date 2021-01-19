@@ -104,9 +104,8 @@ void setup() {
   delay(1000);
 
   /*
-  if (EEPROM.read(0) != 123) {
-    for (int i = 0; i < 256; i++) EEPROM.update(i, 0);
-  }
+    if (EEPROM.read(0) != 123)
+      for (int i = 0; i < 256; i++) EEPROM.update(i, 0);
   */
   manageEEPROM();
   delay(1000);
@@ -121,13 +120,16 @@ void loop() {
 
   listenNextion();
   updateNextion();
-  
+
   manageOzoneCycle();
 }
 
-void startOzoneIfNotAlarm() {
-  if (is_on_temp != is_on_current) {
-    if (!alarm_current) {
+void startOzoneIfNotAlarm() 
+{
+  if (is_on_temp != is_on_current)
+  {
+    if (!alarm_current) 
+    {
       is_on_current = is_on_temp;
       o3_gen_cycle_direction_current = 1;
       o3_gen_cycle_state_current = 1;
@@ -135,52 +137,71 @@ void startOzoneIfNotAlarm() {
       s2_time_countdown = s2_time_current;
       start_countdown = 0;
       dir = 1; /* ----- To remove ----- */
-    } else {
+    } 
+    else 
+    {
       is_on_temp = is_on_current;
     }
   }
 }
 
-void stopOzoneIfAlarm() {
-  if (alarm_old != alarm_current) {
+void stopOzoneIfAlarm() 
+{
+  if (alarm_old != alarm_current) 
+  {
     alarm_old = alarm_current;
-    if (alarm_current) {
-      is_on_current = 0;
-      is_on_temp = 0;
+    if (alarm_current)
+    {
+      is_on_current = is_on_temp = 0;
       s2_time_countdown = s2_time_current;
     }
   }
 }
 
-void manageOzoneCycle() {
+void manageOzoneCycle() 
+{
   stopOzoneIfAlarm();
   startOzoneIfNotAlarm();
 
-  if (is_on_current) {
-    if ((millis() - second_current_millis) > 1000) {
+  if (is_on_current) 
+  {
+    if ((millis() - second_current_millis) > 1000) 
+    {
       second_current_millis = millis();
-      if (start_countdown) {
-        if (s2_time_countdown - 1000 > 0) s2_time_countdown -= 1000;
-        else is_on_temp = 0;
+      if (start_countdown) 
+      {
+        if (s2_time_countdown - 1000 > 0)
+          s2_time_countdown -= 1000;
+        else
+          is_on_temp = 0;
       }
     }
-    if (o3_gen_cycle_state_current) {
-      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_WORKING_TIMER_MILLIS) {
+    if (o3_gen_cycle_state_current) 
+    {
+      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_WORKING_TIMER_MILLIS) 
+      {
         o3_gen_cycle_current_millis = millis();
         o3_gen_cycle_state_current = !o3_gen_cycle_state_current;
       }
-    } else {
-      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_RESTING_TIMER_MILLIS) {
+    } 
+    else 
+    {
+      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_RESTING_TIMER_MILLIS) 
+      {
         o3_gen_cycle_current_millis = millis();
         o3_gen_cycle_state_current = !o3_gen_cycle_state_current;
       }
     }
-    if (o3_gen_cycle_direction_current) digitalWrite(RELAY_PIN, o3_gen_cycle_state_current);
-    else digitalWrite(RELAY_PIN, LOW);
+    if (o3_gen_cycle_direction_current)
+      digitalWrite(RELAY_PIN, o3_gen_cycle_state_current);
+    else
+      digitalWrite(RELAY_PIN, LOW);
     s1_settings_current = 0;
     s2_settings_current = 0;
     s3_settings_current = 0;
-  } else {
+  } 
+  else 
+  {
     digitalWrite(RELAY_PIN, LOW);
     o3_gen_cycle_state_old = o3_gen_cycle_state_current = 0;
     s1_settings_current = 1;
