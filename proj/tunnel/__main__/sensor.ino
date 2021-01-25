@@ -90,7 +90,7 @@ void checkMainSensor()
   else if (s2_ppb_current < s2_min_current) 
     o3_gen_cycle_direction_current = 1;
 
-  if (s2_ppb_current > s2_min_current) 
+  if (s2_ppb_current > s2_max_current) 
     start_countdown = 1;
 
   if (s2_ppb_current <= s2_max_current && s2_ppb_current >= s2_min_current) 

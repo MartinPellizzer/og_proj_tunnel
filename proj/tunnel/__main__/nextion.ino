@@ -42,13 +42,13 @@ void listenNextion() {
 
 void nextionEvalSerial() {
   if (page_current == 1) {
-    if (compareArray(cmd_p1_onoff, buffer_nextion)) is_on_temp = !is_on_current;
+    //if (compareArray(cmd_p1_onoff, buffer_nextion)) is_on_temp = !is_on_current;
 
-    if (!is_on_current) {
+    //if (!is_on_current) {
       if (compareArray(cmd_set_s1, buffer_nextion)) page_current = 11;
       else if (compareArray(cmd_set_s2, buffer_nextion)) page_current = 12;
       else if (compareArray(cmd_set_s3, buffer_nextion)) page_current = 13;
-    }
+    //}
   }
 
   else if (page_current == 11) {
@@ -155,10 +155,10 @@ void nextionUpdatePageHome(uint8_t force_refresh) {
     uint8_t cmd_page_home[] = {0x70, 0x61, 0x67, 0x65, 0x20, 0x70, 0x5F, 0x68, 0x6F, 0x6D, 0x65, 0xff, 0xff, 0xff};
     nextionExecCommand(cmd_page_home, sizeof(cmd_page_home) / sizeof(uint8_t));
   }
-  if (force_refresh || is_on_old != is_on_current) {
+  /*if (force_refresh || is_on_old != is_on_current) {
     is_on_old = is_on_current;
     nextionUpdateOnOff();
-  }
+  }*/
   if (force_refresh || s1_settings_old != s1_settings_current) {
     s1_settings_old = s1_settings_current;
     nextionUpdateSensor1SettingsIcon();
@@ -223,10 +223,6 @@ void nextionUpdatePageHome(uint8_t force_refresh) {
     s3_max_old = s3_max_current;
     nextionUpdateSensor3Max();
   }
-  if (force_refresh || rtc_second_old != rtc_second_current) {
-    rtc_second_old = rtc_second_current;
-    nextionUpdateRTC();
-  }
 }
 void nextionUpdateOnOff() {
   uint8_t _cmd_off[] = {0x70, 0x30, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x33, 0xff, 0xff, 0xff};
@@ -237,20 +233,23 @@ void nextionUpdateOnOff() {
 void nextionUpdateSensor1SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x31, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x31, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  //if (!is_on_current) 
+  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
 void nextionUpdateSensor2SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x32, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x32, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  //if (!is_on_current) 
+  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
 void nextionUpdateSensor3SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x33, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x33, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  //if (!is_on_current) 
+  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
 void nextionUpdateSensor1Val() {
   uint8_t _buffer[] = {0x74, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
@@ -351,30 +350,6 @@ void nextionUpdateSensor3Max() {
   _buffer[9] = (s3_max_current % 10000 / 1000) + 0x30;
   _buffer[11] = (s3_max_current % 1000 / 100) + 0x30;
   _buffer[12] = (s3_max_current % 100 / 10) + 0x30;
-  nextionExecCommand(_buffer, sizeof(_buffer) / sizeof(uint8_t));
-}
-
-void nextionUpdateRTC() {
-  uint8_t _buffer[] = {0x74, 0x31, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x30, 0x30, 0x2F, 0x30, 0x30, 0x2F, 0x30, 0x30, 0x20, 0x2D, 0x20, 0x30, 0x30, 0x3A, 0x30, 0x30, 0x3A, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
-  _buffer[9] = (rtc_year_current % 10000 / 1000) + 0x30;
-  _buffer[10] = (rtc_year_current % 1000 / 100) + 0x30;
-  _buffer[11] = (rtc_year_current % 100 / 10) + 0x30;
-  _buffer[12] = (rtc_year_current % 10 / 1) + 0x30;
-  
-  _buffer[14] = (rtc_month_current % 100 / 10) + 0x30;
-  _buffer[15] = (rtc_month_current % 10 / 1) + 0x30;
-  
-  _buffer[17] = (rtc_day_current % 100 / 10) + 0x30;
-  _buffer[18] = (rtc_day_current % 10 / 1) + 0x30;
-  
-  _buffer[22] = (rtc_hour_current % 100 / 10) + 0x30;
-  _buffer[23] = (rtc_hour_current % 10 / 1) + 0x30;
-  
-  _buffer[25] = (rtc_minute_current % 100 / 10) + 0x30;
-  _buffer[26] = (rtc_minute_current % 10 / 1) + 0x30;
-  
-  _buffer[28] = (rtc_second_current % 100 / 10) + 0x30;
-  _buffer[29] = (rtc_second_current % 10 / 1) + 0x30;
   nextionExecCommand(_buffer, sizeof(_buffer) / sizeof(uint8_t));
 }
 

@@ -1,12 +1,5 @@
 #include <EEPROM.h>
 
-#include <SPI.h>
-#include <SD.h>
-File myFile;
-
-#include "RTClib.h"
-RTC_DS3231 rtc;
-
 uint8_t is_on_temp = 0;
 uint8_t is_on_current = 0;
 uint8_t is_on_old = 0;
@@ -84,7 +77,6 @@ uint8_t dir = 1;
 const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
 const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
 
-
 uint8_t s1_settings_current = 1;
 uint8_t s1_settings_old = 1;
 uint8_t s2_settings_current = 1;
@@ -92,23 +84,7 @@ uint8_t s2_settings_old = 1;
 uint8_t s3_settings_current = 1;
 uint8_t s3_settings_old = 1;
 
-bool RTC_inizialized = false;
-bool SD_inizialized = false;
-
-/* rtc */
-
-int rtc_year_current = 0;
-int rtc_year_old = 0;
-int rtc_month_current = 0;
-int rtc_month_old = 0;
-int rtc_day_current = 0;
-int rtc_day_old = 0;
-int rtc_hour_current = 0;
-int rtc_hour_old = 0;
-int rtc_minute_current = 0;
-int rtc_minute_old = 0;
-int rtc_second_current = 0;
-int rtc_second_old = 0;
+bool b_start_cycle = true;
 
 void setup() {
   digitalWrite(25, LOW);
@@ -134,41 +110,16 @@ void setup() {
   manageEEPROM();
   delay(1000);
 
-  if (SD.begin(4))
-    SD_inizialized = true;
-  else {
-    SD_inizialized = false;
-    //Serial.println("initialization done.");
-    digitalWrite(26, HIGH);
-    delay(100);
-    digitalWrite(26, LOW);
-    delay(100);
-    digitalWrite(26, HIGH);
-    delay(100);
-    digitalWrite(26, LOW);
-    delay(100);
-    digitalWrite(26, HIGH);
-    delay(100);
-    digitalWrite(26, LOW);
-    delay(100);
-  }
-
-  if (rtc.begin())
-    RTC_inizialized = true;
-  else
-    RTC_inizialized = false;
-
-  if (rtc.lostPower()) {
-    //Serial.println("RTC lost power, let's set the time!");
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
-
   page_current = 1;
 }
 
 void loop() {
-  RTC_Handler();
-  SD_Handler();
+  
+  if(b_start_cycle)
+  {
+    b_start_cycle = false;
+    is_on_temp = true;
+  }
   
   updateSensorsVal();
   checkSensorsAlarm();
