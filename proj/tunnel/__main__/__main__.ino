@@ -1,5 +1,13 @@
 #include <EEPROM.h>
 
+#define PIN_IN_START_CYCLE      24
+#define PIN_OUT_GENO3           25
+#define PIN_OUT_STATUS_LED      26
+#define PIN_OUT_END_CYCLE       27
+#define PIN_OUT_ALARM1          28
+#define PIN_OUT_ALARM2          29
+#define PIN_OUT_DATA            6
+
 uint8_t is_on_temp = 0;
 uint8_t is_on_current = 0;
 uint8_t is_on_old = 0;
@@ -10,6 +18,8 @@ uint8_t o3_gen_cycle_direction_current = 0;
 uint8_t o3_gen_cycle_direction_old = 0;
 
 unsigned long o3_gen_cycle_current_millis = 0;
+
+const unsigned long initial_countdown = 10000;
 
 
 int s1_ppb_current = 0;
@@ -72,8 +82,6 @@ uint8_t test_counter_current = 20;
 uint8_t test_counter_old = 20;
 uint8_t dir = 1;
 
-#define RELAY_PIN 25
-
 const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
 const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
 
@@ -84,14 +92,55 @@ uint8_t s2_settings_old = 1;
 uint8_t s3_settings_current = 1;
 uint8_t s3_settings_old = 1;
 
-bool b_start_cycle = true;
+//bool b_start_cycle = true;
 
-void setup() {
-  digitalWrite(25, LOW);
-  pinMode(25, OUTPUT);
-  pinMode(26, OUTPUT);
-  //pinMode(8, OUTPUT);
-  //digitalWrite(8, LOW);
+bool is_cycle_input_on_prev = false;
+bool is_cycle_input_on = false;
+
+void PinInStartCycle_Init()
+{
+  pinMode(PIN_IN_START_CYCLE, INPUT_PULLUP);
+}
+void PinOutGenO3_Init()
+{
+  digitalWrite(PIN_OUT_GENO3, LOW);
+  pinMode(PIN_OUT_GENO3, OUTPUT);
+}
+void PinOutStatusLed_Init()
+{
+  digitalWrite(PIN_OUT_STATUS_LED, LOW);
+  pinMode(PIN_OUT_STATUS_LED, OUTPUT);
+}
+void PinOutEndCycle_Init()
+{
+  digitalWrite(PIN_OUT_END_CYCLE, LOW);
+  pinMode(PIN_OUT_END_CYCLE, OUTPUT);
+}
+void PinOutAlarm1_Init()
+{
+  digitalWrite(PIN_OUT_ALARM1, LOW);
+  pinMode(PIN_OUT_ALARM1, OUTPUT);
+}
+void PinOutAlarm2_Init()
+{
+  digitalWrite(PIN_OUT_ALARM2, LOW);
+  pinMode(PIN_OUT_ALARM2, OUTPUT);
+}
+void PinOutData_Init()
+{
+  analogWrite(PIN_OUT_DATA, 0);
+  pinMode(PIN_OUT_DATA, OUTPUT);
+}
+
+void setup()
+{
+  PinInStartCycle_Init();
+  PinOutGenO3_Init();
+  //PinOutStatusLed_Init();
+  PinOutEndCycle_Init();
+  PinOutAlarm1_Init();
+  PinOutAlarm2_Init();
+  PinOutData_Init();
 
   delay(1000);
   Serial.begin(9600);
@@ -103,116 +152,40 @@ void setup() {
   Serial3.begin(9600);
   delay(1000);
 
-  /*
-    if (EEPROM.read(0) != 123)
-      for (int i = 0; i < 256; i++) EEPROM.update(i, 0);
-  */
-  manageEEPROM();
+
+  s2_time_current = initial_countdown;
+  s2_time_temp = initial_countdown;
+  s2_time_old = initial_countdown;
+  s2_time_countdown = initial_countdown;
+  //manageEEPROM();
   delay(1000);
 
   page_current = 1;
 }
 
-void loop() {
-  
-  if(b_start_cycle)
-  {
+void loop()
+{
+  int val = analogRead(A0);
+  //s1_ppb_current = map(val, 0, 1023, 0, 10000);
+  s2_ppb_current = map(val, 0, 1023, 0, 10000);
+  //Serial.print(s1_ppb_current);
+  //Serial.print(" - ");
+  //Serial.println(s1_max_current);
+
+  CycleHandler();
+  SensorsHandler();
+
+
+  /*
+    if(b_start_cycle)
+    {
     b_start_cycle = false;
     is_on_temp = true;
-  }
-  
-  updateSensorsVal();
-  checkSensorsAlarm();
-  checkMainSensor();
-
-  listenNextion();
-  updateNextion();
-
-  manageOzoneCycle();
-}
-
-void startOzoneIfNotAlarm()
-{
-  if (is_on_temp != is_on_current)
-  {
-    if (!alarm_current)
-    {
-      is_on_current = is_on_temp;
-      o3_gen_cycle_direction_current = 1;
-      o3_gen_cycle_state_current = 1;
-      o3_gen_cycle_current_millis = millis();
-      s2_time_countdown = s2_time_current;
-      start_countdown = 0;
-      /*dir = 1; /* ----- To remove ----- */
     }
-    else
-    {
-      is_on_temp = is_on_current;
-    }
-  }
-}
 
-void stopOzoneIfAlarm()
-{
-  if (alarm_old != alarm_current)
-  {
-    alarm_old = alarm_current;
-    if (alarm_current)
-    {
-      is_on_current = is_on_temp = 0;
-      s2_time_countdown = s2_time_current;
-    }
-  }
-}
+    listenNextion();
+    updateNextion();
 
-void manageOzoneCycle()
-{
-  stopOzoneIfAlarm();
-  startOzoneIfNotAlarm();
-
-  if (is_on_current)
-  {
-    if ((millis() - second_current_millis) > 1000)
-    {
-      second_current_millis = millis();
-      if (start_countdown)
-      {
-        if (s2_time_countdown - 1000 > 0)
-          s2_time_countdown -= 1000;
-        else
-          is_on_temp = 0;
-      }
-    }
-    if (o3_gen_cycle_state_current)
-    {
-      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_WORKING_TIMER_MILLIS)
-      {
-        o3_gen_cycle_current_millis = millis();
-        o3_gen_cycle_state_current = !o3_gen_cycle_state_current;
-      }
-    }
-    else
-    {
-      if ((millis() - o3_gen_cycle_current_millis) > O3_CYCLE_RESTING_TIMER_MILLIS)
-      {
-        o3_gen_cycle_current_millis = millis();
-        o3_gen_cycle_state_current = !o3_gen_cycle_state_current;
-      }
-    }
-    if (o3_gen_cycle_direction_current)
-      digitalWrite(RELAY_PIN, o3_gen_cycle_state_current);
-    else
-      digitalWrite(RELAY_PIN, LOW);
-    s1_settings_current = 0;
-    s2_settings_current = 0;
-    s3_settings_current = 0;
-  }
-  else
-  {
-    digitalWrite(RELAY_PIN, LOW);
-    o3_gen_cycle_state_old = o3_gen_cycle_state_current = 0;
-    s1_settings_current = 1;
-    s2_settings_current = 1;
-    s3_settings_current = 1;
-  }
+  */
+  //manageOzoneCycle();
 }

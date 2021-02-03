@@ -19,6 +19,12 @@ bool s3_new_data = false;
 unsigned long s3_current_millis = 0;
 uint8_t s3_buffer_counter = 0;
 
+void SensorsHandler()
+{
+  //updateSensorsVal();
+  checkSensorMain();
+  checkSensorsAlarm();
+}
 
 void updateSensorsVal() {
   getSensor1Val();
@@ -83,14 +89,14 @@ void checkSensorsAlarm()
     s3_color_current = 0;
 }
 
-void checkMainSensor() 
+void checkSensorMain() 
 {
   if (s2_ppb_current > s2_max_current) 
     o3_gen_cycle_direction_current = 0;
   else if (s2_ppb_current < s2_min_current) 
     o3_gen_cycle_direction_current = 1;
 
-  if (s2_ppb_current > s2_max_current) 
+  if (s2_ppb_current > s2_min_current) 
     start_countdown = 1;
 
   if (s2_ppb_current <= s2_max_current && s2_ppb_current >= s2_min_current) 
