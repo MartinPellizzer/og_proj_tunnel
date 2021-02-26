@@ -19,7 +19,7 @@ uint8_t o3_gen_cycle_direction_old = 0;
 
 unsigned long o3_gen_cycle_current_millis = 0;
 
-const unsigned long initial_countdown = 10000;
+const unsigned long initial_countdown = 5000;
 
 
 int s1_ppb_current = 0;
@@ -82,8 +82,10 @@ uint8_t test_counter_current = 20;
 uint8_t test_counter_old = 20;
 uint8_t dir = 1;
 
-const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
-const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
+//const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
+const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 300000;
+const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 60000;
+//const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
 
 uint8_t s1_settings_current = 1;
 uint8_t s1_settings_old = 1;
@@ -97,50 +99,32 @@ uint8_t s3_settings_old = 1;
 bool is_cycle_input_on_prev = false;
 bool is_cycle_input_on = false;
 
-void PinInStartCycle_Init()
-{
-  pinMode(PIN_IN_START_CYCLE, INPUT_PULLUP);
-}
-void PinOutGenO3_Init()
-{
-  digitalWrite(PIN_OUT_GENO3, LOW);
-  pinMode(PIN_OUT_GENO3, OUTPUT);
-}
-void PinOutStatusLed_Init()
-{
-  digitalWrite(PIN_OUT_STATUS_LED, LOW);
-  pinMode(PIN_OUT_STATUS_LED, OUTPUT);
-}
-void PinOutEndCycle_Init()
-{
-  digitalWrite(PIN_OUT_END_CYCLE, LOW);
-  pinMode(PIN_OUT_END_CYCLE, OUTPUT);
-}
-void PinOutAlarm1_Init()
-{
-  digitalWrite(PIN_OUT_ALARM1, LOW);
-  pinMode(PIN_OUT_ALARM1, OUTPUT);
-}
-void PinOutAlarm2_Init()
-{
-  digitalWrite(PIN_OUT_ALARM2, LOW);
-  pinMode(PIN_OUT_ALARM2, OUTPUT);
-}
-void PinOutData_Init()
-{
-  analogWrite(PIN_OUT_DATA, 0);
-  pinMode(PIN_OUT_DATA, OUTPUT);
-}
+byte onoff_current = 0;
+byte onoff_old = 255;
+long onoff_millis_current = 0;
+byte onoff_debouncing = 0;
 
 void setup()
 {
-  PinInStartCycle_Init();
-  PinOutGenO3_Init();
-  //PinOutStatusLed_Init();
-  PinOutEndCycle_Init();
-  PinOutAlarm1_Init();
-  PinOutAlarm2_Init();
-  PinOutData_Init();
+  pinMode(PIN_IN_START_CYCLE, INPUT_PULLUP);
+
+  digitalWrite(PIN_OUT_GENO3, LOW);
+  pinMode(PIN_OUT_GENO3, OUTPUT);
+
+  digitalWrite(PIN_OUT_STATUS_LED, LOW);
+  pinMode(PIN_OUT_STATUS_LED, OUTPUT);
+
+  digitalWrite(PIN_OUT_END_CYCLE, LOW);
+  pinMode(PIN_OUT_END_CYCLE, OUTPUT);
+
+  digitalWrite(PIN_OUT_ALARM1, LOW);
+  pinMode(PIN_OUT_ALARM1, OUTPUT);
+
+  digitalWrite(PIN_OUT_ALARM2, LOW);
+  pinMode(PIN_OUT_ALARM2, OUTPUT);
+
+  analogWrite(PIN_OUT_DATA, 0);
+  pinMode(PIN_OUT_DATA, OUTPUT);
 
   delay(1000);
   Serial.begin(9600);
@@ -165,16 +149,11 @@ void setup()
 
 void loop()
 {
-  int val = analogRead(A0);
-  //s1_ppb_current = map(val, 0, 1023, 0, 10000);
-  s2_ppb_current = map(val, 0, 1023, 0, 10000);
-  //Serial.print(s1_ppb_current);
-  //Serial.print(" - ");
-  //Serial.println(s1_max_current);
+  //s2_ppb_current = map(val, 0, 1023, 0, 10000);
 
+  OnOffHandler();
   CycleHandler();
-  SensorsHandler();
-
+  //SensorsHandler();
 
   /*
     if(b_start_cycle)
@@ -187,5 +166,4 @@ void loop()
     updateNextion();
 
   */
-  //manageOzoneCycle();
 }

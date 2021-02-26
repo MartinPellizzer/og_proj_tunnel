@@ -1,6 +1,6 @@
 void CycleHandler()
 {
-  MonitorCycleInput();
+  //MonitorCycleInput();
 
   if (IsCycleInputChanged())
     StartStopCycle();
@@ -131,14 +131,10 @@ void DecrementCountdown()
   if ((millis() - second_current_millis) > 1000)
   {
     second_current_millis = millis();
-    if (start_countdown)
-    {
-      if (s2_time_countdown - 1000 > 0) s2_time_countdown -= 1000;
-      else CheckCountdown0();
-    }
-    Serial.print(s2_ppb_current);
-    Serial.print(" - ");
-    Serial.println(s2_min_current);
+
+    if (s2_time_countdown - 1000 > 0) s2_time_countdown -= 1000;
+    else CheckCountdown0();
+
     Serial.println(s2_time_countdown);
   }
 }
