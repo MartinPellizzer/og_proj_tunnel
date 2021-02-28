@@ -1,7 +1,5 @@
 void CycleHandler()
 {
-  //MonitorCycleInput();
-
   if (IsCycleInputChanged())
     StartStopCycle();
 
@@ -15,12 +13,6 @@ void CycleHandler()
 /* ----------------------------------------------------------------------------------------------------------- */
 /* -------------------------------------------------- INPUT -------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
-void MonitorCycleInput()
-{
-  if (!digitalRead(PIN_IN_START_CYCLE)) is_cycle_input_on = true;
-  else is_cycle_input_on = false;
-}
-
 bool IsCycleInputChanged()
 {
   if (is_cycle_input_on_prev != is_cycle_input_on)
@@ -33,7 +25,7 @@ bool IsCycleInputChanged()
 
 void StartStopCycle()
 {
-  if (is_cycle_input_on) StartCycleIfNotAlarm();
+  if (is_cycle_input_on) StartCycleIfPossible();
   else StopCycle();
 }
 
@@ -42,9 +34,9 @@ void StartStopCycle()
 /* ----------------------------------------------------------------------------------------------------------- */
 /* -------------------------------------------------- START -------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
-void StartCycleIfNotAlarm()
+void StartCycleIfPossible()
 {
-  if (!alarm_current)
+  if (!alarm_current && page_current == 1)
   {
     is_on_current = 1;
     o3_gen_cycle_direction_current = 1;
@@ -84,7 +76,7 @@ void StopCycle()
   s2_time_countdown = s2_time_current;
 
   digitalWrite(PIN_OUT_GENO3, LOW);
-  o3_gen_cycle_state_old = o3_gen_cycle_state_current = 0;
+  o3_gen_cycle_state_current = 0;
   s1_settings_current = 1;
   s2_settings_current = 1;
   s3_settings_current = 1;
@@ -128,14 +120,15 @@ void ManageOzoneCycle()
 
 void DecrementCountdown()
 {
-  if ((millis() - second_current_millis) > 1000)
+  if (start_countdown)
   {
-    second_current_millis = millis();
+    if ((millis() - second_current_millis) > 1000)
+    {
+      second_current_millis = millis();
 
-    if (s2_time_countdown - 1000 > 0) s2_time_countdown -= 1000;
-    else CheckCountdown0();
-
-    Serial.println(s2_time_countdown);
+      if (s2_time_countdown - 1000 > 0) s2_time_countdown -= 1000;
+      else CheckCountdown0();
+    }
   }
 }
 

@@ -3,9 +3,9 @@ uint8_t buffer_nextion[BUFFER_SIZE];
 
 uint8_t cmd_p1_onoff[BUFFER_SIZE] = {101, 1, 10, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-uint8_t cmd_set_s1[BUFFER_SIZE] = {101, 1, 12, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t cmd_set_s2[BUFFER_SIZE] = {101, 1, 13, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t cmd_set_s3[BUFFER_SIZE] = {101, 1, 14, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t cmd_set_s1[BUFFER_SIZE] = {101, 1, 11, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t cmd_set_s2[BUFFER_SIZE] = {101, 1, 12, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t cmd_set_s3[BUFFER_SIZE] = {101, 1, 13, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 uint8_t cmd_back[BUFFER_SIZE] = {101, 2, 1, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t cmd_save[BUFFER_SIZE] = {101, 2, 2, 1, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -21,6 +21,12 @@ bool new_data = false;
 unsigned long nextion_current_millis = 0;
 int buffer_counter = 0;
 
+void NextionHandler()
+{
+  listenNextion();
+  updateNextion();
+}
+
 void listenNextion() {
   if (Serial.available()) {
     new_data = true;
@@ -34,7 +40,7 @@ void listenNextion() {
       buffer_counter = 0;
       nextionEvalSerial();
 
-      nextionDebugSerial();
+      //nextionDebugSerial();
       nextionClearBuffer();
     }
   }
@@ -44,11 +50,11 @@ void nextionEvalSerial() {
   if (page_current == 1) {
     //if (compareArray(cmd_p1_onoff, buffer_nextion)) is_on_temp = !is_on_current;
 
-    //if (!is_on_current) {
-      if (compareArray(cmd_set_s1, buffer_nextion)) page_current = 11;
-      else if (compareArray(cmd_set_s2, buffer_nextion)) page_current = 12;
-      else if (compareArray(cmd_set_s3, buffer_nextion)) page_current = 13;
-    //}
+    if (!is_on_current) {
+    	if (compareArray(cmd_set_s1, buffer_nextion)) page_current = 11;
+    	else if (compareArray(cmd_set_s2, buffer_nextion)) page_current = 12;
+    	else if (compareArray(cmd_set_s3, buffer_nextion)) page_current = 13;
+    }
   }
 
   else if (page_current == 11) {
@@ -129,11 +135,11 @@ void nextionEvalSerial() {
 
 
 /* -------------------------------------------------- */
-void updateNextion() 
+void updateNextion()
 {
   uint8_t force_refresh = 0;
-  
-  if (page_old != page_current) 
+
+  if (page_old != page_current)
   {
     page_old = page_current;
     force_refresh = 1;
@@ -158,7 +164,7 @@ void nextionUpdatePageHome(uint8_t force_refresh) {
   /*if (force_refresh || is_on_old != is_on_current) {
     is_on_old = is_on_current;
     nextionUpdateOnOff();
-  }*/
+    }*/
   if (force_refresh || s1_settings_old != s1_settings_current) {
     s1_settings_old = s1_settings_current;
     nextionUpdateSensor1SettingsIcon();
@@ -224,33 +230,37 @@ void nextionUpdatePageHome(uint8_t force_refresh) {
     nextionUpdateSensor3Max();
   }
 }
+
+/*
 void nextionUpdateOnOff() {
   uint8_t _cmd_off[] = {0x70, 0x30, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x33, 0xff, 0xff, 0xff};
   uint8_t _cmd_on[] = {0x70, 0x30, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x34, 0xff, 0xff, 0xff};
   if (is_on_current) nextionExecCommand(_cmd_on, sizeof(_cmd_on) / sizeof(uint8_t));
   else nextionExecCommand(_cmd_off, sizeof(_cmd_off) / sizeof(uint8_t));
 }
+*/
+
 void nextionUpdateSensor1SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x31, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x31, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  //if (!is_on_current) 
-  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
+
 void nextionUpdateSensor2SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x32, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x32, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  //if (!is_on_current) 
-  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
 void nextionUpdateSensor3SettingsIcon() {
   uint8_t _cmd_enable[] = {0x70, 0x33, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x36, 0xff, 0xff, 0xff};
   uint8_t _cmd_disable[] = {0x70, 0x33, 0x2E, 0x70, 0x69, 0x63, 0x3D, 0x37, 0xff, 0xff, 0xff};
-  //if (!is_on_current) 
-  nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
-  //else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
+  if (!is_on_current) nextionExecCommand(_cmd_enable, sizeof(_cmd_enable));
+  else nextionExecCommand(_cmd_disable, sizeof(_cmd_disable));
 }
+
+
 void nextionUpdateSensor1Val() {
   uint8_t _buffer[] = {0x74, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
   _buffer[8] = (s1_ppb_current % 100000 / 10000) + 0x30;

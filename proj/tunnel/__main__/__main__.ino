@@ -19,7 +19,7 @@ uint8_t o3_gen_cycle_direction_old = 0;
 
 unsigned long o3_gen_cycle_current_millis = 0;
 
-const unsigned long initial_countdown = 5000;
+const unsigned long initial_countdown = 60000;
 
 
 int s1_ppb_current = 0;
@@ -82,10 +82,8 @@ uint8_t test_counter_current = 20;
 uint8_t test_counter_old = 20;
 uint8_t dir = 1;
 
-//const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
-const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 300000;
-const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 60000;
-//const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
+const unsigned long O3_CYCLE_WORKING_TIMER_MILLIS = 2700000;
+const unsigned long O3_CYCLE_RESTING_TIMER_MILLIS = 900000;
 
 uint8_t s1_settings_current = 1;
 uint8_t s1_settings_old = 1;
@@ -101,8 +99,10 @@ bool is_cycle_input_on = false;
 
 byte onoff_current = 0;
 byte onoff_old = 255;
-long onoff_millis_current = 0;
+unsigned long onoff_millis_current = 0;
 byte onoff_debouncing = 0;
+
+unsigned long test_s1_millis_current = 0;
 
 void setup()
 {
@@ -153,7 +153,20 @@ void loop()
 
   OnOffHandler();
   CycleHandler();
-  //SensorsHandler();
+  SensorsHandler();
+  DataLoggerHandler();
+  NextionHandler();
+
+  /*
+  if((millis() - test_s1_millis_current) > 1000)
+  {
+      test_s1_millis_current = millis();
+      Serial.print(s1_ppb_current);
+      Serial.print(" - ");
+      Serial.println(s1_max_current);
+      
+  }
+  */
 
   /*
     if(b_start_cycle)

@@ -21,7 +21,7 @@ uint8_t s3_buffer_counter = 0;
 
 void SensorsHandler()
 {
-  //updateSensorsVal();
+  updateSensorsVal();
   checkSensorMain();
   checkSensorsAlarm();
 }

@@ -21,10 +21,10 @@ void nextionClearBuffer() {
 
 void nextionDebugSerial() {
   for (int i = 0; i < BUFFER_SIZE; i++) {
-    //Serial.print(buffer_nextion[i]);
-    //Serial.print(" ");
+    Serial.print(buffer_nextion[i]);
+    Serial.print(" ");
   }
-  //Serial.println();
+  Serial.println();
 }
 
 unsigned char FucCheckSum(unsigned char *i, unsigned char ln)

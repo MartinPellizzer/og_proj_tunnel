@@ -17,9 +17,7 @@ void _GetDebouncedOnOff()
   if (onoff_debouncing)
   {
     if ((millis() - onoff_millis_current) > 40)
-    {
-      Serial.println(onoff_current);
-      
+    {      
       if (!onoff_current) is_cycle_input_on = true;
       else is_cycle_input_on = false;
       
