@@ -19,7 +19,7 @@ uint8_t o3_gen_cycle_direction_old = 0;
 
 unsigned long o3_gen_cycle_current_millis = 0;
 
-const unsigned long initial_countdown = 60000;
+const unsigned long initial_countdown = 1200000;
 
 
 int s1_ppb_current = 0;
@@ -70,8 +70,10 @@ uint8_t s3_color_old = 0;
 uint8_t page_current = 0;
 uint8_t page_old = 0;
 
-uint8_t alarm_current = 0;
-uint8_t alarm_old = 0;
+uint8_t s1_alarm_current = 0;
+uint8_t s1_alarm_old = 0;
+uint8_t s3_alarm_current = 0;
+uint8_t s3_alarm_old = 0;
 
 uint8_t start_countdown = 0;
 
@@ -154,6 +156,7 @@ void loop()
   OnOffHandler();
   CycleHandler();
   SensorsHandler();
+  AlarmHandler();
   DataLoggerHandler();
   NextionHandler();
 

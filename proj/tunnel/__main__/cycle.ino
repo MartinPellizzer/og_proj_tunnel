@@ -36,7 +36,7 @@ void StartStopCycle()
 /* ----------------------------------------------------------------------------------------------------------- */
 void StartCycleIfPossible()
 {
-  if (!alarm_current && page_current == 1)
+  if (!s1_alarm_current && !s3_alarm_current && page_current == 1)
   {
     is_on_current = 1;
     o3_gen_cycle_direction_current = 1;
@@ -55,16 +55,26 @@ void StartCycleIfPossible()
 /* ----------------------------------------------------------------------------------------------------------- */
 void StopCycleIfAlarm()
 {
-  if (IsAlarmStateChanged())
-    if (alarm_current)
+  if (IsAlarm1StateChanged() || IsAlarm3StateChanged())
+    if(s1_alarm_current || s3_alarm_current)
       StopCycle();
 }
 
-bool IsAlarmStateChanged()
+bool IsAlarm1StateChanged()
 {
-  if (alarm_old != alarm_current)
+  if (s1_alarm_old != s1_alarm_current)
   {
-    alarm_old = alarm_current;
+    s1_alarm_old = s1_alarm_current;
+    return true;
+  }
+  return false;
+}
+
+bool IsAlarm3StateChanged()
+{
+  if (s3_alarm_old != s3_alarm_current)
+  {
+    s3_alarm_old = s3_alarm_current;
     return true;
   }
   return false;

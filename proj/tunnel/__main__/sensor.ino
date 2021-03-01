@@ -73,20 +73,27 @@ void getSensor3Val() {
 
 void checkSensorsAlarm()
 {
-  if (s1_ppb_current > s1_max_current || s3_ppb_current > s3_max_current) 
-    alarm_current = 1;
-  else 
-    alarm_current = 0;
-
   if (s1_ppb_current > s1_max_current) 
+  {
+    s1_alarm_current = 1;
     s1_color_current = 1;
+  }
   else 
+  {
+    s1_alarm_current = 0;
     s1_color_current = 0;
+  }
   
   if (s3_ppb_current > s3_max_current) 
+  {
+    s3_alarm_current = 1;
     s3_color_current = 1;
+  }
   else 
+  {
+    s3_alarm_current = 0;
     s3_color_current = 0;
+  }
 }
 
 void checkSensorMain() 
