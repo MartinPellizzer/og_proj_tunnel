@@ -36,10 +36,11 @@ void getSensor1Val() {
   if (Serial2.available() > 0) {
     byte s1_measure[8];
     Serial2.readBytes(s1_measure, 9);
-    if(FucCheckSum(s1_measure, 9) == s1_measure[8]) {
+    if (FucCheckSum(s1_measure, 9) == s1_measure[8]) {
       int _temp = s1_measure[4] * 256 + s1_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s1_ppb_current = _temp;
+        s1_working_current_attempts = 0;
       }
     }
   }
@@ -49,10 +50,11 @@ void getSensor2Val() {
   if (Serial1.available() > 0) {
     byte s2_measure[8];
     Serial1.readBytes(s2_measure, 9);
-    if(FucCheckSum(s2_measure, 9) == s2_measure[8]) {
+    if (FucCheckSum(s2_measure, 9) == s2_measure[8]) {
       int _temp = s2_measure[4] * 256 + s2_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s2_ppb_current = _temp;
+        s2_working_current_attempts = 0;
       }
     }
   }
@@ -62,10 +64,11 @@ void getSensor3Val() {
   if (Serial3.available() > 0) {
     byte s3_measure[8];
     Serial3.readBytes(s3_measure, 9);
-    if(FucCheckSum(s3_measure, 9) == s3_measure[8]) {
+    if (FucCheckSum(s3_measure, 9) == s3_measure[8]) {
       int _temp = s3_measure[4] * 256 + s3_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s3_ppb_current = _temp;
+        s3_working_current_attempts = 0;
       }
     }
   }
@@ -73,42 +76,49 @@ void getSensor3Val() {
 
 void checkSensorsAlarm()
 {
-  if (s1_ppb_current > s1_max_current) 
+  if (s1_ppb_current > s1_max_current)
   {
     s1_alarm_current = 1;
     s1_color_current = 1;
   }
-  else 
+  else
   {
     s1_alarm_current = 0;
     s1_color_current = 0;
   }
-  
-  if (s3_ppb_current > s3_max_current) 
+
+  if (s3_ppb_current > s3_max_current)
   {
     s3_alarm_current = 1;
     s3_color_current = 1;
   }
-  else 
+  else
   {
     s3_alarm_current = 0;
     s3_color_current = 0;
   }
 }
 
-void checkSensorMain() 
+void checkSensorsWorking()
 {
-  if (s2_ppb_current > s2_max_current) 
+  if (s1_working_current_attempts > s1_working_max_attempts) s1_ppb_current = 0;
+  if (s2_working_current_attempts > s2_working_max_attempts) s2_ppb_current = 0;
+  if (s3_working_current_attempts > s3_working_max_attempts) s3_ppb_current = 0;
+}
+
+void checkSensorMain()
+{
+  if (s2_ppb_current > s2_max_current)
     o3_gen_cycle_direction_current = 0;
-  else if (s2_ppb_current < s2_min_current) 
+  else if (s2_ppb_current < s2_min_current)
     o3_gen_cycle_direction_current = 1;
 
-  if (s2_ppb_current > s2_min_current) 
+  if (s2_ppb_current > s2_min_current)
     start_countdown = 1;
 
-  if (s2_ppb_current <= s2_max_current && s2_ppb_current >= s2_min_current) 
+  if (s2_ppb_current <= s2_max_current && s2_ppb_current >= s2_min_current)
     s2_color_current = 1;
-  else 
+  else
     s2_color_current = 0;
 }
 

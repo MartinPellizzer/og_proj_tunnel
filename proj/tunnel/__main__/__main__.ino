@@ -21,7 +21,6 @@ unsigned long o3_gen_cycle_current_millis = 0;
 
 const unsigned long initial_countdown = 1200000;
 
-
 int s1_ppb_current = 0;
 int s1_ppb_old = 0;
 int s1_min_current = 0;
@@ -36,6 +35,8 @@ unsigned long s1_time_old = 1200000;
 long s1_time_countdown = 1200000;
 uint8_t s1_color_current = 0;
 uint8_t s1_color_old = 0;
+int s1_working_current_attempts = 0;
+int s1_working_max_attempts = 3;
 
 int s2_ppb_current = 0;
 int s2_ppb_old = 0;
@@ -77,7 +78,6 @@ uint8_t s3_alarm_old = 0;
 
 uint8_t start_countdown = 0;
 
-
 /* dummy stuff */
 unsigned long second_current_millis = 0;
 uint8_t test_counter_current = 20;
@@ -93,8 +93,6 @@ uint8_t s2_settings_current = 1;
 uint8_t s2_settings_old = 1;
 uint8_t s3_settings_current = 1;
 uint8_t s3_settings_old = 1;
-
-//bool b_start_cycle = true;
 
 bool is_cycle_input_on_prev = false;
 bool is_cycle_input_on = false;
@@ -138,12 +136,12 @@ void setup()
   Serial3.begin(9600);
   delay(1000);
 
-
   s2_time_current = initial_countdown;
   s2_time_temp = initial_countdown;
   s2_time_old = initial_countdown;
   s2_time_countdown = initial_countdown;
-  //manageEEPROM();
+  
+  manageEEPROM();
   delay(1000);
 
   page_current = 1;
@@ -151,35 +149,20 @@ void setup()
 
 void loop()
 {
-  //s2_ppb_current = map(val, 0, 1023, 0, 10000);
+  if((millis() - test_s1_millis_current) > 1000)
+  {
+      test_s1_millis_current = millis();
+      DataLoggerHandler();
 
+      s1_working_current_attempts += 1;
+      s2_working_current_attempts += 1;
+      s3_working_current_attempts += 1;
+  }
+  
   OnOffHandler();
   CycleHandler();
   SensorsHandler();
   AlarmHandler();
   DataLoggerHandler();
   NextionHandler();
-
-  /*
-  if((millis() - test_s1_millis_current) > 1000)
-  {
-      test_s1_millis_current = millis();
-      Serial.print(s1_ppb_current);
-      Serial.print(" - ");
-      Serial.println(s1_max_current);
-      
-  }
-  */
-
-  /*
-    if(b_start_cycle)
-    {
-    b_start_cycle = false;
-    is_on_temp = true;
-    }
-
-    listenNextion();
-    updateNextion();
-
-  */
 }
