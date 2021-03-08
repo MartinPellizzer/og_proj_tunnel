@@ -19,7 +19,11 @@ void _GetDebouncedOnOff()
     if ((millis() - onoff_millis_current) > 40)
     {      
       if (!onoff_current) is_cycle_input_on = true;
-      else is_cycle_input_on = false;
+      else
+      {
+        is_cycle_input_on = false;
+        first_off = true;
+      }
       
       onoff_debouncing = 0;
     }

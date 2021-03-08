@@ -263,13 +263,7 @@ void nextionUpdateSensor3SettingsIcon() {
 
 void nextionUpdateSensor1Val() {
   uint8_t _buffer[] = {0x74, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
-  uint8_t _buffer[] = {0x74, 0x30, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
-  _buffer[8] = (s1_ppb_current % 100000 / 10000) + 0x30;
-  _buffer[9] = (s1_ppb_current % 10000 / 1000) + 0x30;
-  _buffer[11] = (s1_ppb_current % 1000 / 100) + 0x30;
-  _buffer[12] = (s1_ppb_current % 100 / 10) + 0x30;
-
-  if (s1_working_current_attempts < s1_working_max_attempts)
+  if (s1_working_current_attempts < WORKING_MAX_ATTEMPTS)
   {
     _buffer[8] = (s1_ppb_current % 100000 / 10000) + 0x30;
     _buffer[9] = (s1_ppb_current % 10000 / 1000) + 0x30;
@@ -313,7 +307,7 @@ void nextionUpdateSensor1Max() {
 }
 void nextionUpdateSensor2Val() {
   uint8_t _buffer[] = {0x74, 0x31, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
-  if (s1_working_current_attempts < s1_working_max_attempts)
+  if (s2_working_current_attempts < WORKING_MAX_ATTEMPTS)
   {
     _buffer[8] = (s2_ppb_current % 100000 / 10000) + 0x30;
     _buffer[9] = (s2_ppb_current % 10000 / 1000) + 0x30;
@@ -363,8 +357,9 @@ void nextionUpdateSensor2Time() {
   nextionExecCommand(_buffer, sizeof(_buffer) / sizeof(uint8_t));
 }
 void nextionUpdateSensor3Val() {
+  
   uint8_t _buffer[] = {0x74, 0x32, 0x2E, 0x74, 0x78, 0x74, 0x3D, 0x22, 0x30, 0x30, 0x2E, 0x30, 0x30, 0x22, 0xff, 0xff, 0xff};
-  if (s1_working_current_attempts < s1_working_max_attempts)
+  if (s3_working_current_attempts < WORKING_MAX_ATTEMPTS)
   {
     _buffer[8] = (s3_ppb_current % 100000 / 10000) + 0x30;
     _buffer[9] = (s3_ppb_current % 10000 / 1000) + 0x30;

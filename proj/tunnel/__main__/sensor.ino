@@ -24,6 +24,7 @@ void SensorsHandler()
   updateSensorsVal();
   checkSensorMain();
   checkSensorsAlarm();
+  checkSensorsWorking();
 }
 
 void updateSensorsVal() {
@@ -40,6 +41,7 @@ void getSensor1Val() {
       int _temp = s1_measure[4] * 256 + s1_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s1_ppb_current = _temp;
+        s1_ppb_old = -1;
         s1_working_current_attempts = 0;
       }
     }
@@ -54,6 +56,7 @@ void getSensor2Val() {
       int _temp = s2_measure[4] * 256 + s2_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s2_ppb_current = _temp;
+        s2_ppb_old = -1;
         s2_working_current_attempts = 0;
       }
     }
@@ -68,6 +71,7 @@ void getSensor3Val() {
       int _temp = s3_measure[4] * 256 + s3_measure[5];
       if (_temp >= 0 && _temp <= 10000) {
         s3_ppb_current = _temp;
+        s3_ppb_old = -1;
         s3_working_current_attempts = 0;
       }
     }
@@ -76,7 +80,12 @@ void getSensor3Val() {
 
 void checkSensorsAlarm()
 {
-  if (s1_ppb_current > s1_max_current)
+  if (s1_ppb_current == 0)
+  {
+    s1_alarm_current = 1;
+    s1_color_current = 0;
+  }
+  else if (s1_ppb_current > s1_max_current)
   {
     s1_alarm_current = 1;
     s1_color_current = 1;
@@ -87,7 +96,13 @@ void checkSensorsAlarm()
     s1_color_current = 0;
   }
 
-  if (s3_ppb_current > s3_max_current)
+  
+  if (s3_ppb_current == 0)
+  {
+    s3_alarm_current = 1;
+    s3_color_current = 0;
+  }
+  else if (s3_ppb_current > s3_max_current)
   {
     s3_alarm_current = 1;
     s3_color_current = 1;
@@ -101,9 +116,21 @@ void checkSensorsAlarm()
 
 void checkSensorsWorking()
 {
-  if (s1_working_current_attempts > s1_working_max_attempts) s1_ppb_current = 0;
-  if (s2_working_current_attempts > s2_working_max_attempts) s2_ppb_current = 0;
-  if (s3_working_current_attempts > s3_working_max_attempts) s3_ppb_current = 0;
+  if (s1_working_current_attempts >= WORKING_MAX_ATTEMPTS)
+  {
+    s1_ppb_current = 0;
+    s1_ppb_old = -1;
+  }
+  if (s2_working_current_attempts >= WORKING_MAX_ATTEMPTS)
+  {
+    s2_ppb_current = 0;
+    s2_ppb_old = -1;
+  }
+  if (s3_working_current_attempts >= WORKING_MAX_ATTEMPTS)
+  {
+    s3_ppb_current = 0;
+    s3_ppb_old = -1;
+  }
 }
 
 void checkSensorMain()

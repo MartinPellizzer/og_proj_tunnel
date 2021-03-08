@@ -3,7 +3,7 @@ void CycleHandler()
   if (IsCycleInputChanged())
     StartStopCycle();
 
-  StopCycleIfAlarm();
+  //StopCycleIfAlarm();
 
   ManageOzoneCycle();
 }
@@ -36,7 +36,7 @@ void StartStopCycle()
 /* ----------------------------------------------------------------------------------------------------------- */
 void StartCycleIfPossible()
 {
-  if (!s1_alarm_current && !s3_alarm_current && page_current == 1)
+  if (!s1_alarm_current && !s3_alarm_current && page_current == 1 && first_off)
   {
     is_on_current = 1;
     o3_gen_cycle_direction_current = 1;

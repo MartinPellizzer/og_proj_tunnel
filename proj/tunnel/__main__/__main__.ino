@@ -21,6 +21,9 @@ unsigned long o3_gen_cycle_current_millis = 0;
 
 const unsigned long initial_countdown = 1200000;
 
+
+int WORKING_MAX_ATTEMPTS = 5;
+
 int s1_ppb_current = 0;
 int s1_ppb_old = 0;
 int s1_min_current = 0;
@@ -35,8 +38,7 @@ unsigned long s1_time_old = 1200000;
 long s1_time_countdown = 1200000;
 uint8_t s1_color_current = 0;
 uint8_t s1_color_old = 0;
-int s1_working_current_attempts = 0;
-int s1_working_max_attempts = 3;
+int s1_working_current_attempts = WORKING_MAX_ATTEMPTS;
 
 int s2_ppb_current = 0;
 int s2_ppb_old = 0;
@@ -52,6 +54,7 @@ unsigned long s2_time_old = 1200000;
 long s2_time_countdown = 1200000;
 uint8_t s2_color_current = 0;
 uint8_t s2_color_old = 0;
+int s2_working_current_attempts = WORKING_MAX_ATTEMPTS;
 
 int s3_ppb_current = 0;
 int s3_ppb_old = 0;
@@ -67,6 +70,7 @@ unsigned long s3_time_old = 1200000;
 long s3_time_countdown = 1200000;
 uint8_t s3_color_current = 0;
 uint8_t s3_color_old = 0;
+int s3_working_current_attempts = WORKING_MAX_ATTEMPTS;
 
 uint8_t page_current = 0;
 uint8_t page_old = 0;
@@ -102,7 +106,9 @@ byte onoff_old = 255;
 unsigned long onoff_millis_current = 0;
 byte onoff_debouncing = 0;
 
-unsigned long test_s1_millis_current = 0;
+unsigned long second_millis_current = 0;
+
+bool first_off = false;
 
 void setup()
 {
@@ -149,20 +155,23 @@ void setup()
 
 void loop()
 {
-  if((millis() - test_s1_millis_current) > 1000)
+  if((millis() - second_millis_current) > 1000)
   {
-      test_s1_millis_current = millis();
+      second_millis_current = millis();
       DataLoggerHandler();
 
-      s1_working_current_attempts += 1;
-      s2_working_current_attempts += 1;
-      s3_working_current_attempts += 1;
+      if(s1_working_current_attempts <= WORKING_MAX_ATTEMPTS * 2) s1_working_current_attempts += 1;
+      if(s2_working_current_attempts <= WORKING_MAX_ATTEMPTS * 2) s2_working_current_attempts += 1;
+      if(s3_working_current_attempts <= WORKING_MAX_ATTEMPTS * 2) s3_working_current_attempts += 1;
   }
+  
+  SensorsHandler();
+  AlarmHandler();
   
   OnOffHandler();
   CycleHandler();
-  SensorsHandler();
-  AlarmHandler();
+  
   DataLoggerHandler();
+  
   NextionHandler();
 }
