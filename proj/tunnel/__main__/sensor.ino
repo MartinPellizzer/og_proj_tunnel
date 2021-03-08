@@ -80,7 +80,7 @@ void getSensor3Val() {
 
 void checkSensorsAlarm()
 {
-  if (s1_ppb_current == 0)
+  if (s1_ppb_current == -2)
   {
     s1_alarm_current = 1;
     s1_color_current = 0;
@@ -97,7 +97,7 @@ void checkSensorsAlarm()
   }
 
   
-  if (s3_ppb_current == 0)
+  if (s3_ppb_current == -2)
   {
     s3_alarm_current = 1;
     s3_color_current = 0;
@@ -118,17 +118,17 @@ void checkSensorsWorking()
 {
   if (s1_working_current_attempts >= WORKING_MAX_ATTEMPTS)
   {
-    s1_ppb_current = 0;
+    s1_ppb_current = -2;
     s1_ppb_old = -1;
   }
   if (s2_working_current_attempts >= WORKING_MAX_ATTEMPTS)
   {
-    s2_ppb_current = 0;
+    s2_ppb_current = -2;
     s2_ppb_old = -1;
   }
   if (s3_working_current_attempts >= WORKING_MAX_ATTEMPTS)
   {
-    s3_ppb_current = 0;
+    s3_ppb_current = -2;
     s3_ppb_old = -1;
   }
 }
